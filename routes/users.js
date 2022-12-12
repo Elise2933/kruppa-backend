@@ -62,8 +62,9 @@ router.put('/signup', (req, res) => {
       photo,
       birthDate,
       description,
-      $push: { favoriteSports: { sport: req.body.sport, level: req.body.level } }
+      favoriteSports: favoriteSports
     }
+
 
   )
     .then(() => {
