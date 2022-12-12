@@ -38,11 +38,7 @@ router.get('/search', (req, res) => {
     
     let { sport, latitude, longitude } = req.query;
 
-    console.log('sport =>', sport);
-    console.log('latitude =>', latitude);
-    console.log('longitude =>', longitude)
-
-    if(!sport && !latitude && !longitude) {
+    if((!sport && !latitude && !longitude) || ((latitude || longitude) && (!latitude || !longitude))) {
         res.json({ result: false, message:'Missing or empty fields.' });
         return;
     }
@@ -59,10 +55,7 @@ router.get('/search', (req, res) => {
         } else {
             res.json({result: false, message: 'No groups found.'})
         }
-    })
+    });
 });
-
-// { $geoWithin:
-//     { $centerSphere: [ [ -73.93414657, 40.82302903 ], 5 / 3963.2 ] } } })
 
 module.exports = router;
