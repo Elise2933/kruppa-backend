@@ -83,4 +83,19 @@ router.put('/signup', (req, res) => {
   });
 
 
+  router.post('/', (req, res) => {
+     
+    if (!checkBody (req.body, ['token'])) {
+      res.json({ result: false, error: 'Missing or empty fields' });
+      return;
+    }    
+    // find the user which username is req.params
+    User.findOne({ username: { $regex: new RegExp(req.params.username, 'i') } }).then(data => {
+      res.json({ result: true, user: data });
+    });
+  });
+
+
+
+
 module.exports = router;
