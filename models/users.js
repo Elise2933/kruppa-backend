@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 
 const favoriteSportSchema = mongoose.Schema({
-    sport: { type: mongoose.Schema.Types.ObjectId, ref: 'sports' },
+    sport: String, //{ type: mongoose.Schema.Types.ObjectId, ref: 'sports' },
     level: String,
 });
 
@@ -22,8 +22,8 @@ const usersSchema = mongoose.Schema({
     birthDate: Date,
     description: String,
     favoriteSports: [favoriteSportSchema],
-    registrations: [registrationSchema]
-
+    registrations: [registrationSchema],
+    token: String
 });
 
 const User = mongoose.model('users', usersSchema);
