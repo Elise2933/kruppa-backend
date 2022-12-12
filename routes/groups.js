@@ -30,23 +30,32 @@ router.post('/create', (req, res) => {
         }
     });
     newGroup.save().then(newEntry => {
-        res.json({result: true, message: 'New group created successfully.', data: newEntry})
+        res.json({result: true, message: 'New group created successfully.', data: newEntry});
     });
 });
 
-router.get('/search/:sport/:latitude/:longitude', (req, res) => {
+router.get('/search', (req, res) => {
     
-    let { sport, latitude, longitude } = req.params
+    let { sport, latitude, longitude } = req.query;
+
+    console.log('sport =>', sport);
+    console.log('latitude =>', latitude);
+    console.log('longitude =>', longitude)
+
+    if(!sport && !latitude && !longitude) {
+        res.json({ result: false, message:'Missing or empty fields.' });
+        return;
+    }
 
     Group.find({
-        sport: {$regex:new RegExp(sport, "i")}, 
-        "workout_location.location": {
+        ...(sport && { sport: {$regex:new RegExp(sport, "i")} }), 
+        ...((latitude && longitude) && {"workout_location.location" : {
             $geoWithin: {
-            $centerSphere: [[Number(longitude), Number(latitude)], 5 / 3963.2]
-        }}
+            $centerSphere: [[Number(longitude), Number(latitude)], 5 / 3963.2] //create a file with all consts
+        }}})
     }).then(groups => {
         if(groups.length > 0) {
-            res.json({result: true, groups})
+            res.json({result: true, groups}) //add map function to transform the object in order to change format and contain latitude and longitude (avoids errors from long/lat by default from mongo)
         } else {
             res.json({result: false, message: 'No groups found.'})
         }

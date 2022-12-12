@@ -7,7 +7,7 @@ const locationSchema = mongoose.Schema({
             type: String,
             enum: ['Point'],
         },
-        coordinates: [Number] // [longitude, latitude]
+        coordinates: [Number] //[longitude, latitude]
     }
 });
 
