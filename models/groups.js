@@ -10,7 +10,7 @@ const groupsSchema = mongoose.Schema({
     admin: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     photo: String,
     name: String,
-    sport: { type: mongoose.Schema.Types.ObjectId, ref: 'sports' },
+    sport: String, //{ type: mongoose.Schema.Types.ObjectId, ref: 'sports' },
     maxMembers: Number,
     genders: [String],
     levels: [String],
@@ -18,7 +18,6 @@ const groupsSchema = mongoose.Schema({
     ageMax: Number,
     description: String,
     localisation: localisationSchema,
-
 });
 
 const Group = mongoose.model('groups', groupsSchema);
