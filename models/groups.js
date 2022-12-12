@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
-const localisationSchema = mongoose.Schema({
+const locationSchema = mongoose.Schema({
     label: String,
-    latitude: Number,
-    longitude: Number,
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+        },
+        coordinates: [Number] // [longitude, latitude]
+    }
 });
 
 const groupsSchema = mongoose.Schema({
@@ -12,12 +17,12 @@ const groupsSchema = mongoose.Schema({
     name: String,
     sport: String, //{ type: mongoose.Schema.Types.ObjectId, ref: 'sports' },
     maxMembers: Number,
-    genders: [String],
-    levels: [String],
+    genders: [{type: String}],
+    levels: [{type: String}],
     ageMin: Number,
     ageMax: Number,
     description: String,
-    localisation: localisationSchema,
+    workout_location: locationSchema,
 });
 
 const Group = mongoose.model('groups', groupsSchema);
