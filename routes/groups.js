@@ -44,14 +44,14 @@ router.get('/search', (req, res) => {
         res.json({ result: false, message:'Missing or empty fields.' });
         return;
     }
-
+    
     Sport.findOne({label: sport})
     .then(sportData => {
         Group.find({
             ...(sport && { sport: sportData._id }), 
             ...((latitude && longitude) && {"workout_location.location" : {
                 $geoWithin: { $centerSphere: [ [ Number(longitude), Number(latitude) ] ,
-                    10 / 6,378.1 ] //create a file with all consts
+                    10 / 6378.1 ] //create a file with all consts
             }}})
         })
         .populate('sport')
