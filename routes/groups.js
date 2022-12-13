@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const Group = require('../models/groups');
+const Sport = require('../models/sports')
 
 router.post('/create', (req, res) => {
     
@@ -25,6 +26,7 @@ router.post('/create', (req, res) => {
         workout_location: {
             label,
             location: {
+                type: 'Point',
                 coordinates: [longitude, latitude]
             }
         }
@@ -43,18 +45,23 @@ router.get('/search', (req, res) => {
         return;
     }
 
-    Group.find({
-        ...(sport && { sport: {$regex:new RegExp(sport, "i")} }), 
-        ...((latitude && longitude) && {"workout_location.location" : {
-            $geoWithin: {
-            $centerSphere: [[Number(longitude), Number(latitude)], 5 / 3963.2] //create a file with all consts
-        }}})
-    }).then(groups => {
-        if(groups.length > 0) {
-            res.json({result: true, groups}) //add map function to transform the object in order to change format and contain latitude and longitude (avoids errors from long/lat by default from mongo)
-        } else {
-            res.json({result: false, message: 'No groups found.'})
-        }
+    Sport.findOne({label: sport})
+    .then(sportData => {
+        Group.find({
+            ...(sport && { sport: sportData._id }), 
+            ...((latitude && longitude) && {"workout_location.location" : {
+                $geoWithin: { $centerSphere: [ [ Number(longitude), Number(latitude) ] ,
+                    10 / 6,378.1 ] //create a file with all consts
+            }}})
+        })
+        .populate('sport')
+        .then(groups => {
+            if(groups.length > 0) {
+                res.json({result: true, groups}) //add map function to transform the object in order to change format and contain latitude and longitude (avoids errors from long/lat by default from mongo)
+            } else {
+                res.json({result: false, message: 'No groups found.', groups})
+            }
+        });
     });
 });
 
