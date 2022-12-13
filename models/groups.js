@@ -3,19 +3,18 @@ const mongoose = require('mongoose');
 const locationSchema = mongoose.Schema({
     label: String,
     location: {
-        type: {
-            type: String,
-            enum: ['Point'],
-        },
+        type: {type: String},
         coordinates: [Number] //[longitude, latitude]
     }
 });
+
+locationSchema.index = ({location: '2dsphere'});
 
 const groupsSchema = mongoose.Schema({
     admin: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     photo: String,
     name: String,
-    sport: String, //{ type: mongoose.Schema.Types.ObjectId, ref: 'sports' },
+    sport: { type: mongoose.Schema.Types.ObjectId, ref: 'sports' },
     maxMembers: Number,
     genders: [{type: String}],
     levels: [{type: String}],
