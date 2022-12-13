@@ -15,7 +15,7 @@ router.post('/signup', (req, res) => {
   }
 
   // Check if the user has not already been registered
-  User.findOne({ username: req.body.username }).then(data => {
+  User.findOne({ username: req.body.username, email: req.body.email }).then(data => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
       console.log('hash');
@@ -45,10 +45,7 @@ router.post('/signup', (req, res) => {
 
 //Filling out the rest of user's information
 router.put('/signup', (req, res) => {
-
-  console.log('new put route')
-
-
+ 
   // Check if all fiels are filled out
   if (!checkBody(req.body, ['gender', 'birthDate', 'description', 'token'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
@@ -99,8 +96,6 @@ router.post('/', (req, res) => {
     res.json({ result: true, user: data });
   });
 });
-
-
 
 
 module.exports = router;
