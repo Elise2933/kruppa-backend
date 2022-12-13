@@ -31,6 +31,7 @@ router.post('/', (req, res) => {
 
 router.get('/', (req, res) => {
     Sport.find().then(data => {
+        sportsData = data.map(e => e.label)
         res.json({ result: true, sports: data });
     });
 })
