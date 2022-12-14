@@ -72,7 +72,7 @@ router.put('/signup', (req, res) => {
 router.post('/signin', (req, res) => {
   if (!checkBody(req.body, ['email', 'password'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
-    return;
+    return ;
   }
 
   User.findOne({ email: req.body.email }).then(data => {
