@@ -57,30 +57,30 @@ router.put('/signup', (req, res) => {
       favoriteSports
     }
   ).then(() => {
-      res.json({ result: true })
-    });
+    res.json({ result: true })
+  });
 });
 
 router.post('/signin', (req, res) => {
   if (!checkBody(req.body, ['email', 'password'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
-    return ;
+    return;
   }
 
   User.findOne({ email: req.body.email })
-  .then(data => {
-    if (data && bcrypt.compareSync(req.body.password, data.hash)) {
-      res.json({ 
-        result: true, 
-        user: {
-          token: data.token, 
-          username: data.username
-        }
-      });
-    } else {
-      res.json({ result: false, error: 'User not found or wrong password' });
-    };
-  });
+    .then(data => {
+      if (data && bcrypt.compareSync(req.body.password, data.hash)) {
+        res.json({
+          result: true,
+          user: {
+            token: data.token,
+            username: data.username
+          }
+        });
+      } else {
+        res.json({ result: false, error: 'User not found or wrong password' });
+      };
+    });
 });
 
 router.post('/', (req, res) => {
@@ -123,5 +123,48 @@ router.post('/', (req, res) => {
 //   // })
 
 // })
+
+// upload profile picture
+
+router.post('/upload', async (req, res) => {
+
+  const photoPath = `./tmp/${uniqid()}.jpg`;
+  const resultMove = await req.files.profilePicture.mv(photoPath);
+
+  if (!resultMove) {
+    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+
+  } else {
+    res.json({ result: false, error: resultMove });
+  }
+  fs.unlinkSync(photoPath);
+
+});
+
+router.put('/picture', (req, res) => {
+  const { token, url } = req.body
+  User.updateOne(
+    { token: token },
+    { photo: url }
+  ).then(() => {
+    User.findOne({ token: token }).then(data => {
+      console.log(data);
+      res.json({ result: true, photo: data.photo });
+    });
+
+  });
+})
+
+//  User.updateOne(
+//   { token: req.body.token },
+//   { photo: resultCloudinary.secure_url }
+// ).then(() => {
+//   User.find({ token: token }).then(data => {
+//     console.log(data);
+//     res.json({ result: true });
+//   });
+// })
+
+
 
 module.exports = router;
