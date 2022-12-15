@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-
-
 const favoriteSportSchema = mongoose.Schema({
     sport: String, //{ type: mongoose.Schema.Types.ObjectId, ref: 'sports' },
     level: String,
@@ -10,7 +8,6 @@ const favoriteSportSchema = mongoose.Schema({
 const registrationSchema = mongoose.Schema({
     group: { type: mongoose.Schema.Types.ObjectId, ref: 'groups' },
     status: String,
-
 });
 
 const usersSchema = mongoose.Schema({

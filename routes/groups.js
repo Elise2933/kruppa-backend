@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const Group = require('../models/groups');
-const Sport = require('../models/sports')
-const User = require('../models/users')
+const Sport = require('../models/sports');
+const User = require('../models/users');
 
 router.post('/create', (req, res) => {
     
@@ -68,13 +68,11 @@ router.get('/search', (req, res) => {
 
 router.post('/getbytoken', (req, res) => {
     User.findOne({ token: req.body.token})
-     .populate('group')
+    .populate('group')
     .then(data => {
         res.json({result: true, groups: data.registrations})
       console.log(data);
     });
 })
-
-
 
 module.exports = router;

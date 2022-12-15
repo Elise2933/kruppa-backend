@@ -1,25 +1,21 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../models/users');
+const Group = require('../models/groups');
 const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcryptjs');
 
-
 router.post('/signup', (req, res) => {
   // Check if all fiels are filled out
-  // console.log('req.body : ' + req.body)
   if (!checkBody(req.body, ['username', 'email', 'password'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-
   // Check if the user has not already been registered
   User.findOne({ username: req.body.username, email: req.body.email }).then(data => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
-      console.log('hash');
-
       const newUser = new User({
         username: req.body.username,
         gender: null,
@@ -32,7 +28,6 @@ router.post('/signup', (req, res) => {
         registrations: [],
         token: uid2(32),
       });
-      console.log(newUser);
       newUser.save().then(newDoc => {
         res.json({ result: true, token: newDoc.token });
       });
@@ -45,7 +40,6 @@ router.post('/signup', (req, res) => {
 
 //Filling out the rest of user's information
 router.put('/signup', (req, res) => {
- 
   // Check if all fiels are filled out
   if (!checkBody(req.body, ['gender', 'birthDate', 'description', 'token'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
@@ -62,9 +56,7 @@ router.put('/signup', (req, res) => {
       // $push: { favoriteSports: { sport: req.body.sport, level: req.body.level } }
       favoriteSports
     }
-
-  )
-    .then(() => {
+  ).then(() => {
       res.json({ result: true })
     });
 });
@@ -75,7 +67,8 @@ router.post('/signin', (req, res) => {
     return ;
   }
 
-  User.findOne({ email: req.body.email }).then(data => {
+  User.findOne({ email: req.body.email })
+  .then(data => {
     if (data && bcrypt.compareSync(req.body.password, data.hash)) {
       res.json({ 
         result: true, 
@@ -86,13 +79,11 @@ router.post('/signin', (req, res) => {
       });
     } else {
       res.json({ result: false, error: 'User not found or wrong password' });
-    }
+    };
   });
 });
 
-
 router.post('/', (req, res) => {
-
   if (!checkBody(req.body, ['token'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
@@ -103,5 +94,34 @@ router.post('/', (req, res) => {
   });
 });
 
+// router.put('/join-group', (req, res) => {
+//   let { token, group_id } = req.body;
+
+//   if (!group_id) {
+//     res.json({result: false, message: 'No token or group id received.'});
+//     return;
+//   }
+
+//   //get group info
+//   User.updateOne(
+//       {token},
+//       {registrations: group_id}
+//     ).then(data )
+
+
+//   // Group.findById(group_id)
+//   // .then(groupData => {
+//   //   User.updateOne(
+//   //     {token},
+//   //     {registrations: group_id}
+//   //   ).then(data )
+//   //   if(groupData) {
+//   //     res.json({ result: true, groupData })
+//   //   } else {
+//   //     res.json({ result: false, message: 'No group found.' })
+//   //   }
+//   // })
+
+// })
 
 module.exports = router;
