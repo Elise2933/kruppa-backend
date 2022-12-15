@@ -7,7 +7,7 @@ const favoriteSportSchema = mongoose.Schema({
 
 const registrationSchema = mongoose.Schema({
     group: { type: mongoose.Schema.Types.ObjectId, ref: 'groups' },
-    status: String,
+    status: { type: String, default: 'Approved'},
 });
 
 const usersSchema = mongoose.Schema({

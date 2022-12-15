@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const mongoose = require('mongoose');
 const User = require('../models/users');
 const Group = require('../models/groups');
 const { checkBody } = require('../modules/checkBody');
@@ -94,34 +95,28 @@ router.post('/', (req, res) => {
   });
 });
 
-// router.put('/join-group', (req, res) => {
-//   let { token, group_id } = req.body;
-
-//   if (!group_id) {
-//     res.json({result: false, message: 'No token or group id received.'});
-//     return;
-//   }
-
-//   //get group info
-//   User.updateOne(
-//       {token},
-//       {registrations: group_id}
-//     ).then(data )
-
-
-//   // Group.findById(group_id)
-//   // .then(groupData => {
-//   //   User.updateOne(
-//   //     {token},
-//   //     {registrations: group_id}
-//   //   ).then(data )
-//   //   if(groupData) {
-//   //     res.json({ result: true, groupData })
-//   //   } else {
-//   //     res.json({ result: false, message: 'No group found.' })
-//   //   }
-//   // })
-
-// })
+router.put('/join-group', (req, res) => {
+  let { token, group_id, status } = req.body;
+  const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
+  if (!token || !group_id || !isGroupIdValid) {
+    res.json({result: false, message: 'No valid token or group id received.'});
+    return;
+  };
+  User.updateOne(
+    {token},
+    {$push: {
+      registrations: {
+        group: group_id,
+        status,
+      }}
+    })
+    .then(data => {
+      if (data.modifiedCount > 0) {
+        res.json({ result: true, message: 'Group added sucessfully.' })
+      } else {
+        res.json({ result: false, message: 'Group cannot be added'})
+      }
+    }).catch(error => console.log(error));
+});
 
 module.exports = router;
