@@ -82,40 +82,4 @@ router.post('/getbytoken', (req, res) => {
         });
 })
 
-//upload group picture
-
-//WORK IN PROGRESS
-// router.put('/upload', async (req, res) => {
-//     const { group_id } = req.body
-
-//     const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
-//     if (!group_id || !isGroupIdValid) {
-//         res.json({ result: false, message: 'No valid group id received.' });
-//         return;
-//     };
-
-//     const photoPath = `./tmp/${uniqid()}.jpg`;
-//     const resultMove = await req.files.groupPicture.mv(photoPath);
-
-//     if (!resultMove) {
-//         const resultCloudinary = await cloudinary.uploader.upload(photoPath);
-
-//         //update group picture by ID with resultCloudinary.secure_url
-//         Group.updateOne(
-//             { _id: group_id },
-//             { photo: resultCloudinary.secure_url }
-//         ).then(() => {
-//             Group.find({ _id: group_id }).then(data => {
-//                 console.log(data);
-//                 res.json({ result: true, group: data });
-//             });
-//         })
-
-//     } else {
-//         res.json({ result: false, error: resultMove });
-//     }
-//     fs.unlinkSync(photoPath);
-
-// });
-
 module.exports = router;
