@@ -10,35 +10,40 @@ const mongoose = require('mongoose');
 
 router.post('/create', (req, res) => {
 
-    let { admin_id, photo, name, sport_id, maxMembers, genders, levels, ageMin, ageMax, description, label, latitude, longitude } = req.body;
+    let { token, photo, name, sport_id, maxMembers, genders, levels, ageMin, ageMax, description, label, latitude, longitude } = req.body;
 
-    if (!admin_id && !photo && !name && !sport_id && !maxMembers && !genders && !levels && !ageMin && !ageMax && !description && !label && !latitude && !longitude) {
+
+    if (!token && !photo && !name && !sport_id && !maxMembers && !genders && !levels && !ageMin && !ageMax && !description && !label && !latitude && !longitude) {
         res.json({ result: false, message: 'Missing or empty fields.' });
         return
     };
 
-    const newGroup = new Group({
-        admin: admin_id,
-        photo,
-        name,
-        sport: sport_id,
-        maxMembers,
-        genders,
-        levels,
-        ageMin,
-        ageMax,
-        description,
-        workout_location: {
-            label,
-            location: {
-                type: 'Point',
-                coordinates: [longitude, latitude]
-            }
-        }
-    });
-    newGroup.save().then(newEntry => {
-        res.json({ result: true, message: 'New group created successfully.', data: newEntry });
-    });
+    User.findOne({ token: token })
+        .then(user => {
+            console.log('user : ' + user)
+            const newGroup = new Group({
+                admin: user._id,
+                photo,
+                name,
+                sport: sport_id,
+                maxMembers,
+                genders,
+                levels,
+                ageMin,
+                ageMax,
+                description,
+                workout_location: {
+                    label,
+                    location: {
+                        type: 'Point',
+                        coordinates: [longitude, latitude]
+                    }
+                }
+            });
+            newGroup.save().then(newEntry => {
+                res.json({ result: true, message: 'New group created successfully.', data: newEntry });
+            });
+        });
 });
 
 router.get('/search', (req, res) => {
@@ -79,21 +84,21 @@ router.post('/main', (req, res) => {
     let { group_id } = req.body;
     const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
 
-    if(!isGroupIdValid) {
-        res.json({result: false, message: 'Invalid group id.'});
+    if (!isGroupIdValid) {
+        res.json({ result: false, message: 'Invalid group id.' });
         return;
     };
 
     Group.findById(group_id)
-    .populate('sport', 'label -_id')
-    .populate('admin', 'username -_id')
-    .then(groupData => {
-        if (groupData) {
-            res.json({ result: true, groupData})
-        } else {
-            res.json({ result: false, message: 'No group found for group id received.'})
-        }
-    });
+        .populate('sport', 'label -_id')
+        .populate('admin', 'username -_id')
+        .then(groupData => {
+            if (groupData) {
+                res.json({ result: true, groupData })
+            } else {
+                res.json({ result: false, message: 'No group found for group id received.' })
+            }
+        });
 });
 
 module.exports = router;
