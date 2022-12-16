@@ -160,6 +160,24 @@ router.put('/picture', (req, res) => {
 //   });
 // })
 
+// Retrieves all groups from user
+router.post('/groups', (req, res) => {
+  const { token } = req.body;
 
+  if (!token) {
+    res.json({ result: false, error: 'No token received.'});
+    return;
+  }
+
+  User.findOne({ token })
+  .populate('registrations.group')
+  .then(userData => {
+      if (userData) {
+        res.json({ result: true, userGroups: userData.registrations})
+      } else {
+        res.json({ result: false, error: 'No groups found for user'})
+      }
+  });
+});
 
 module.exports = router;

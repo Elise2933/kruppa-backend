@@ -74,6 +74,7 @@ router.get('/search', (req, res) => {
         });
 });
 
+// Retrieves group information
 router.post('/main', (req, res) => {
     let { group_id } = req.body;
     const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
