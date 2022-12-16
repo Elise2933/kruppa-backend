@@ -85,6 +85,8 @@ router.post('/main', (req, res) => {
     };
 
     Group.findById(group_id)
+    .populate('sport', 'label -_id')
+    .populate('admin', 'username -_id')
     .then(groupData => {
         if (groupData) {
             res.json({ result: true, groupData})
