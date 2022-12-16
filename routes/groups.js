@@ -6,6 +6,7 @@ const User = require('../models/users');
 const cloudinary = require('cloudinary').v2;
 const uniqid = require('uniqid');
 const fs = require('fs');
+const mongoose = require('mongoose');
 
 router.post('/create', (req, res) => {
 
@@ -73,13 +74,23 @@ router.get('/search', (req, res) => {
         });
 });
 
-router.post('/getbytoken', (req, res) => {
-    User.findOne({ token: req.body.token })
-        .populate('group')
-        .then(data => {
-            res.json({ result: true, groups: data.registrations })
-            console.log(data);
-        });
-})
+router.post('/main', (req, res) => {
+    let { group_id } = req.body;
+    const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
+
+    if(!isGroupIdValid) {
+        res.json({result: false, message: 'Invalid group id.'});
+        return;
+    };
+
+    Group.findById(group_id)
+    .then(groupData => {
+        if (groupData) {
+            res.json({ result: true, groupData})
+        } else {
+            res.json({ result: false, message: 'No group found for group id received.'})
+        }
+    });
+});
 
 module.exports = router;
