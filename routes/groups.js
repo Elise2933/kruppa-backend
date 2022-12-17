@@ -3,47 +3,49 @@ var router = express.Router();
 const Group = require('../models/groups');
 const Sport = require('../models/sports');
 const User = require('../models/users');
-const cloudinary = require('cloudinary').v2;
-const uniqid = require('uniqid');
-const fs = require('fs');
+// const cloudinary = require('cloudinary').v2;
+// const uniqid = require('uniqid');
+// const fs = require('fs');
 const mongoose = require('mongoose');
 
 router.post('/create', (req, res) => {
 
-    let { token, photo, name, sport_id, maxMembers, genders, levels, ageMin, ageMax, description, label, latitude, longitude } = req.body;
+    let { token, photo, name, sport, maxMembers, genders, levels, ageMin, ageMax, description, label, latitude, longitude } = req.body;
 
 
-    if (!token && !photo && !name && !sport_id && !maxMembers && !genders && !levels && !ageMin && !ageMax && !description && !label && !latitude && !longitude) {
+    if (!token && !photo && !name && !sport && !maxMembers && !genders && !levels && !ageMin && !ageMax && !description && !label && !latitude && !longitude) {
         res.json({ result: false, message: 'Missing or empty fields.' });
         return
     };
 
-    User.findOne({ token: token })
-        .then(user => {
-            console.log('user : ' + user)
-            const newGroup = new Group({
-                admin: user._id,
-                photo,
-                name,
-                sport: sport_id,
-                maxMembers,
-                genders,
-                levels,
-                ageMin,
-                ageMax,
-                description,
-                workout_location: {
-                    label,
-                    location: {
-                        type: 'Point',
-                        coordinates: [longitude, latitude]
+    Sport.findOne({ label: sport }).then(sport => {
+        User.findOne({ token: token })
+            .then(user => {
+                console.log('user : ' + user)
+                const newGroup = new Group({
+                    admin: user._id,
+                    photo,
+                    name,
+                    sport: sport._id,
+                    maxMembers,
+                    genders,
+                    levels,
+                    ageMin,
+                    ageMax,
+                    description,
+                    workout_location: {
+                        label,
+                        location: {
+                            type: 'Point',
+                            coordinates: [longitude, latitude]
+                        }
                     }
-                }
+                });
+                newGroup.save().then(newEntry => {
+                    res.json({ result: true, message: 'New group created successfully.', data: newEntry });
+                });
             });
-            newGroup.save().then(newEntry => {
-                res.json({ result: true, message: 'New group created successfully.', data: newEntry });
-            });
-        });
+    })
 });
 
 router.get('/search', (req, res) => {
