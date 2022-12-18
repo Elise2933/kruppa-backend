@@ -182,7 +182,13 @@ router.post('/groups', (req, res) => {
 
   User.findOne({ token })
     .populate('registrations.group')
-    .populate('registrations.group.sport')
+    .populate({ //get populate from sub sub document
+      path: "registrations.group", // 1st level subdoc
+      populate: { // 2nd level subdoc 
+        path: "sport",
+        select: 'label'
+      }
+    })
     .then(userData => {
       if (userData) {
         res.json({ result: true, userGroups: userData.registrations })
