@@ -102,21 +102,31 @@ router.put('/join-group', (req, res) => {
     res.json({result: false, message: 'No valid token or group id received.'});
     return;
   };
-  User.updateOne(
-    {token},
-    {$push: {
-      registrations: {
-        group: group_id,
-        status,
-      }}
-    })
-    .then(data => {
-      if (data.modifiedCount > 0) {
-        res.json({ result: true, message: 'Group added sucessfully.' })
-      } else {
-        res.json({ result: false, message: 'Group cannot be added'})
-      }
-    }).catch(error => console.log(error));
+  User.findOne({
+    token, 
+    'registrations.group': group_id
+  }).then(userData => {
+    if(userData) {
+      res.json({result: false, message: 'User already joined this group.'} )
+    } else {
+      User.updateOne(
+      {token},
+      {$push: {
+        registrations: {
+          group: group_id,
+          status,
+        }}
+      })
+      .then(data => {
+        if (data.modifiedCount > 0) {
+          res.json({ result: true, message: 'User joined sucessfully.' })
+        } else {
+          res.json({ result: false, error: 'User cannot join.'})
+        }
+      }).catch(error => console.log(error));
+    }
+  })
+  
 });
 
 // upload profile picture
