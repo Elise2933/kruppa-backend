@@ -99,31 +99,33 @@ router.put('/join-group', (req, res) => {
   let { token, group_id, status } = req.body;
   const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
   if (!token || !group_id || !isGroupIdValid) {
-    res.json({result: false, message: 'No valid token or group id received.'});
+    res.json({ result: false, message: 'No valid token or group id received.' });
     return;
   };
   User.findOne({
-    token, 
+    token,
     'registrations.group': group_id
   }).then(userData => {
-    if(userData) {
-      res.json({result: false, message: 'User already joined this group.'} )
+    if (userData) {
+      res.json({ result: false, message: 'User already joined this group.' })
     } else {
       User.updateOne(
-      {token},
-      {$push: {
-        registrations: {
-          group: group_id,
-          status,
-        }}
-      })
-      .then(data => {
-        if (data.modifiedCount > 0) {
-          res.json({ result: true, message: 'User joined sucessfully.' })
-        } else {
-          res.json({ result: false, error: 'User cannot join.'})
-        }
-      }).catch(error => console.log(error));
+        { token },
+        {
+          $push: {
+            registrations: {
+              group: group_id,
+              status,
+            }
+          }
+        })
+        .then(data => {
+          if (data.modifiedCount > 0) {
+            res.json({ result: true, message: 'User joined sucessfully.' })
+          } else {
+            res.json({ result: false, error: 'User cannot join.' })
+          }
+        }).catch(error => console.log(error));
     }
   })
 });
@@ -174,45 +176,47 @@ router.post('/groups', (req, res) => {
   const { token } = req.body;
 
   if (!token) {
-    res.json({ result: false, error: 'No token received.'});
+    res.json({ result: false, error: 'No token received.' });
     return;
   }
 
   User.findOne({ token })
-  .populate('registrations.group')
-  .then(userData => {
+    .populate('registrations.group')
+    .populate('registrations.group.sport')
+    .then(userData => {
       if (userData) {
-        res.json({ result: true, userGroups: userData.registrations})
+        res.json({ result: true, userGroups: userData.registrations })
       } else {
-        res.json({ result: false, error: 'No groups found for user'})
+        res.json({ result: false, error: 'No groups found for user' })
       }
-  });
+    });
 });
 
 router.put('/leave-group', (req, res) => {
   let { token, group_id, status } = req.body;
   const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
   if (!token || !group_id || !isGroupIdValid) {
-    res.json({result: false, message: 'No valid token or group id received.'});
+    res.json({ result: false, message: 'No valid token or group id received.' });
     return;
   };
-  
-    User.updateOne(
-      {token},
-      {$pull: 
-        {
-          registrations: {
-            group: group_id,
-            status: 'Approved'
-          }
+
+  User.updateOne(
+    { token },
+    {
+      $pull:
+      {
+        registrations: {
+          group: group_id,
+          status: 'Approved'
         }
-      },
-    )
+      }
+    },
+  )
     .then(data => {
       if (data.modifiedCount > 0) {
         res.json({ result: true, message: 'User left sucessfully.' })
       } else {
-        res.json({ result: false, error: 'User could not leave the group.'})
+        res.json({ result: false, error: 'User could not leave the group.' })
       }
     }).catch(error => console.log(error));
 });
