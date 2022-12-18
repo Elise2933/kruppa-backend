@@ -126,7 +126,6 @@ router.put('/join-group', (req, res) => {
       }).catch(error => console.log(error));
     }
   })
-  
 });
 
 // upload profile picture
@@ -188,6 +187,34 @@ router.post('/groups', (req, res) => {
         res.json({ result: false, error: 'No groups found for user'})
       }
   });
+});
+
+router.put('/leave-group', (req, res) => {
+  let { token, group_id, status } = req.body;
+  const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
+  if (!token || !group_id || !isGroupIdValid) {
+    res.json({result: false, message: 'No valid token or group id received.'});
+    return;
+  };
+  
+    User.updateOne(
+      {token},
+      {$pull: 
+        {
+          registrations: {
+            group: group_id,
+            status: 'Approved'
+          }
+        }
+      },
+    )
+    .then(data => {
+      if (data.modifiedCount > 0) {
+        res.json({ result: true, message: 'User left sucessfully.' })
+      } else {
+        res.json({ result: false, error: 'User could not leave the group.'})
+      }
+    }).catch(error => console.log(error));
 });
 
 module.exports = router;
