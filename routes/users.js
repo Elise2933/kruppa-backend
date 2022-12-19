@@ -191,7 +191,7 @@ router.post('/groups', (req, res) => {
     })
     .then(userData => {
       if (userData) {
-        res.json({ result: true, userGroups: userData.registrations })
+        res.json({ result: true, userGroups: userData.registrations, userData })
       } else {
         res.json({ result: false, error: 'No groups found for user' })
       }
