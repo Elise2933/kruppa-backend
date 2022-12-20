@@ -227,4 +227,24 @@ router.put('/leave-group', (req, res) => {
     }).catch(error => console.log(error));
 });
 
+router.post('/join-status', (req, res) => {
+  let { token, group_id } = req.body;
+  const isGroupIdValid = mongoose.Types.ObjectId.isValid(group_id);
+  if (!token || !group_id || !isGroupIdValid) {
+    res.json({ result: false, message: 'No valid token or group id received.' });
+    return;
+  };
+  User.findOne({
+    token,
+    'registrations.group': group_id
+  }).then(userData => {
+    if (userData) {
+      res.json({ result: false, message: 'User already joined this group.' })
+    } else {
+      res.json({ result: true, message: 'User not in this group.'})
+    }
+  })
+});
+
+
 module.exports = router;
