@@ -23,7 +23,6 @@ router.post('/create', (req, res) => {
     Sport.findOne({ label: sport }).then(sport => {
         User.findOne({ token: token })
             .then(user => {
-                console.log('user : ' + user)
                 const newGroup = new Group({
                     admin: user._id,
                     photo,
@@ -44,7 +43,12 @@ router.post('/create', (req, res) => {
                     }
                 });
                 newGroup.save().then(newEntry => {
-                    res.json({ result: true, message: 'New group created successfully.', data: newEntry });
+                    User.updateOne(
+                        { token: token },
+                        { $push: { registrations: { group: newEntry._id, status: "Approved" } } }
+                    ).then(() => {
+                        res.json({ result: true, message: 'New group created successfully.', data: newEntry });
+                    })
                 });
             });
     })
