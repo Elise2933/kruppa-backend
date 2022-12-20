@@ -3,10 +3,12 @@ var router = express.Router();
 const Group = require('../models/groups');
 const Sport = require('../models/sports');
 const User = require('../models/users');
+
 // const cloudinary = require('cloudinary').v2;
 // const uniqid = require('uniqid');
 // const fs = require('fs');
 const mongoose = require('mongoose');
+
 
 router.post('/create', (req, res) => {
 
@@ -103,4 +105,16 @@ router.post('/main', (req, res) => {
         });
 });
 
+
+//Get all memebers of a given group 
+router.post('/members', (req, res) => {
+    let {group_id } = req.body;
+
+        User.find( {'registrations.group': group_id })
+        .then(userdata => {
+         res.json({ result: true, userdata })
+     }) 
+})
+
+ 
 module.exports = router;
