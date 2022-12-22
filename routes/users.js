@@ -6,6 +6,11 @@ const Group = require('../models/groups');
 const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcryptjs');
+const uniqid = require('uniqid');
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+
+
 
 router.post('/signup', (req, res) => {
   // Check if all fiels are filled out
@@ -134,12 +139,18 @@ router.put('/join-group', (req, res) => {
 
 router.post('/upload', async (req, res) => {
 
+  // console.log('req.files : ' + req.files)
+  console.log('req :  ' + req)
+
   const photoPath = `./tmp/${uniqid()}.jpg`;
   const resultMove = await req.files.profilePicture.mv(photoPath);
 
+  console.log(photoPath)
+
   if (!resultMove) {
     const resultCloudinary = await cloudinary.uploader.upload(photoPath);
-
+    console.log('enter !resultMove')
+    res.json({ result: true, url: resultCloudinary.secure_url });
   } else {
     res.json({ result: false, error: resultMove });
   }
@@ -241,7 +252,7 @@ router.post('/join-status', (req, res) => {
     if (userData) {
       res.json({ result: false, message: 'User already joined this group.' })
     } else {
-      res.json({ result: true, message: 'User not in this group.'})
+      res.json({ result: true, message: 'User not in this group.' })
     }
   })
 });
