@@ -3,6 +3,9 @@ var router = express.Router();
 const Group = require('../models/groups');
 const Sport = require('../models/sports');
 const User = require('../models/users');
+const uniqid = require('uniqid');
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
 
 // const cloudinary = require('cloudinary').v2;
 // const uniqid = require('uniqid');
@@ -112,13 +115,45 @@ router.post('/main', (req, res) => {
 
 //Get all memebers of a given group 
 router.post('/members', (req, res) => {
-    let {group_id } = req.body;
+    let { group_id } = req.body;
 
-        User.find( {'registrations.group': group_id })
+    User.find({ 'registrations.group': group_id })
         .then(userdata => {
-         res.json({ result: true, userdata })
-     }) 
+            res.json({ result: true, userdata })
+        })
 })
 
- 
+
+
+//upload group picture
+
+router.post('/upload', async (req, res) => {
+
+    const photoPath = `./tmp/${uniqid()}.jpg`;
+    const resultMove = await req.files.groupPicture.mv(photoPath);
+
+    if (!resultMove) {
+        const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+        res.json({ result: true, url: resultCloudinary.secure_url });
+    } else {
+        res.json({ result: false, error: resultMove });
+    }
+    fs.unlinkSync(photoPath);
+
+});
+
+router.put('/picture', (req, res) => {
+    const { group_id, url } = req.body
+    Group.updateOne(
+        { _id: group_id },
+        { photo: url }
+    ).then(() => {
+        Group.findOne({ _id: group_id }).then(data => {
+            res.json({ result: true, photo: data.photo });
+        });
+
+    });
+})
+
+
 module.exports = router;

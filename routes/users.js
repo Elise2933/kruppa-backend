@@ -13,7 +13,7 @@ const fs = require('fs');
 
 
 router.post('/signup', (req, res) => {
-  
+
   const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   // Check if all fiels are filled out
   if (!checkBody(req.body, ['username', 'email', 'password']) || !EMAIL_REGEX.test(req.body.email)) {
@@ -141,17 +141,11 @@ router.put('/join-group', (req, res) => {
 
 router.post('/upload', async (req, res) => {
 
-  // console.log('req.files : ' + req.files)
-  console.log('req :  ' + req)
-
   const photoPath = `./tmp/${uniqid()}.jpg`;
   const resultMove = await req.files.profilePicture.mv(photoPath);
 
-  console.log(photoPath)
-
   if (!resultMove) {
     const resultCloudinary = await cloudinary.uploader.upload(photoPath);
-    console.log('enter !resultMove')
     res.json({ result: true, url: resultCloudinary.secure_url });
   } else {
     res.json({ result: false, error: resultMove });
@@ -167,22 +161,11 @@ router.put('/picture', (req, res) => {
     { photo: url }
   ).then(() => {
     User.findOne({ token: token }).then(data => {
-      console.log(data);
       res.json({ result: true, photo: data.photo });
     });
 
   });
 })
-
-//  User.updateOne(
-//   { token: req.body.token },
-//   { photo: resultCloudinary.secure_url }
-// ).then(() => {
-//   User.find({ token: token }).then(data => {
-//     console.log(data);
-//     res.json({ result: true });
-//   });
-// })
 
 // Retrieves all groups from user
 router.post('/groups', (req, res) => {
