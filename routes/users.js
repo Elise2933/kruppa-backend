@@ -13,8 +13,10 @@ const fs = require('fs');
 
 
 router.post('/signup', (req, res) => {
+  
+  const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   // Check if all fiels are filled out
-  if (!checkBody(req.body, ['username', 'email', 'password'])) {
+  if (!checkBody(req.body, ['username', 'email', 'password']) || !EMAIL_REGEX.test(req.body.email)) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
